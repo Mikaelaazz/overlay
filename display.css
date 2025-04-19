@@ -402,7 +402,7 @@
 .blur img{
     width: 170px;
     
-    filter: blur(3px);
+    filter: blur(2px);
     margin-top: -50px;
     margin-left: -90px;
     position: relative;
