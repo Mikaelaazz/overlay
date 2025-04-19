@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postgame Control - Mobile Legends</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .team-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .team {
+            width: 48%;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .team-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .team-blue .team-title {
+            background-color: #3498db;
+        }
+        .team-red .team-title {
+            background-color: #e74c3c;
+        }
+        .player-form {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .player-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .stats-section {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .stats-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .stats-col {
+            flex: 1;
+            padding: 0 10px;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        button.reset {
+            background-color: #e74c3c;
+        }
+        button.reset:hover {
+            background-color: #c0392b;
+        }
+        .game-info {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mobile Legends Postgame Control</h1>
+        
+        <div class="game-info">
+            <div class="form-group">
+                <label for="game-number">Game Number</label>
+                <input type="text" id="game-number" placeholder="Contoh: GAME 1">
+            </div>
+            <div class="form-group">
+                <label for="game-duration">Game Duration (mm:ss)</label>
+                <input type="text" id="game-duration" placeholder="Contoh: 15:42">
+            </div>
+        </div>
+        
+        <div class="team-section">
+            <div class="team team-blue">
+                <div class="team-title">TEAM BLUE</div>
+                
+                <!-- Player 1 -->
+                <div class="player-form">
+                    <div class="player-title">Player 1</div>
+                    <div class="form-group">
+                        <label for="blue-player1-name">Nickname</label>
+                        <input type="text" id="blue-player1-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player1-hero">Hero Image URL</label>
+                        <input type="text" id="blue-player1-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player1-level">Level</label>
+                        <input type="text" id="blue-player1-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player1-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="blue-player1-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player1-gold">Gold</label>
+                        <input type="text" id="blue-player1-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player1-spell">Battle Spell</label>
+                        <input type="text" id="blue-player1-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="blue-player1-item1" placeholder="Item 1">
+                        <input type="text" id="blue-player1-item2" placeholder="Item 2">
+                        <input type="text" id="blue-player1-item3" placeholder="Item 3">
+                        <input type="text" id="blue-player1-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player1-item5" placeholder="Item 5">
+                        <input type="text" id="blue-player1-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 2 -->
+                <div class="player-form">
+                    <div class="player-title">Player 2</div>
+                    <div class="form-group">
+                        <label for="blue-player2-name">Nickname</label>
+                        <input type="text" id="blue-player2-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player2-hero">Hero Image URL</label>
+                        <input type="text" id="blue-player2-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player2-level">Level</label>
+                        <input type="text" id="blue-player2-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player2-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="blue-player2-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player2-gold">Gold</label>
+                        <input type="text" id="blue-player2-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player2-spell">Battle Spell</label>
+                        <input type="text" id="blue-player2-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="blue-player2-item1" placeholder="Item 1">
+                        <input type="text" id="blue-player2-item2" placeholder="Item 2">
+                        <input type="text" id="blue-player2-item3" placeholder="Item 3">
+                        <input type="text" id="blue-player2-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player2-item5" placeholder="Item 5">
+                        <input type="text" id="blue-player2-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 3 -->
+                <div class="player-form">
+                    <div class="player-title">Player 3</div>
+                    <div class="form-group">
+                        <label for="blue-player3-name">Nickname</label>
+                        <input type="text" id="blue-player3-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player3-hero">Hero Image URL</label>
+                        <input type="text" id="blue-player3-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player3-level">Level</label>
+                        <input type="text" id="blue-player3-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player3-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="blue-player3-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player3-gold">Gold</label>
+                        <input type="text" id="blue-player3-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player3-spell">Battle Spell</label>
+                        <input type="text" id="blue-player3-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="blue-player3-item1" placeholder="Item 1">
+                        <input type="text" id="blue-player3-item2" placeholder="Item 2">
+                        <input type="text" id="blue-player3-item3" placeholder="Item 3">
+                        <input type="text" id="blue-player3-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player3-item5" placeholder="Item 5">
+                        <input type="text" id="blue-player3-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 4 -->
+                <div class="player-form">
+                    <div class="player-title">Player 4</div>
+                    <div class="form-group">
+                        <label for="blue-player4-name">Nickname</label>
+                        <input type="text" id="blue-player4-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player4-hero">Hero Image URL</label>
+                        <input type="text" id="blue-player4-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player4-level">Level</label>
+                        <input type="text" id="blue-player4-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player4-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="blue-player4-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player4-gold">Gold</label>
+                        <input type="text" id="blue-player4-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player4-spell">Battle Spell</label>
+                        <input type="text" id="blue-player4-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="blue-player4-item1" placeholder="Item 1">
+                        <input type="text" id="blue-player4-item2" placeholder="Item 2">
+                        <input type="text" id="blue-player4-item3" placeholder="Item 3">
+                        <input type="text" id="blue-player4-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player4-item5" placeholder="Item 5">
+                        <input type="text" id="blue-player4-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 5 -->
+                <div class="player-form">
+                    <div class="player-title">Player 5</div>
+                    <div class="form-group">
+                        <label for="blue-player5-name">Nickname</label>
+                        <input type="text" id="blue-player5-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player5-hero">Hero Image URL</label>
+                        <input type="text" id="blue-player5-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player5-level">Level</label>
+                        <input type="text" id="blue-player5-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player5-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="blue-player5-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player5-gold">Gold</label>
+                        <input type="text" id="blue-player5-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-player5-spell">Battle Spell</label>
+                        <input type="text" id="blue-player5-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="blue-player5-item1" placeholder="Item 1">
+                        <input type="text" id="blue-player5-item2" placeholder="Item 2">
+                        <input type="text" id="blue-player5-item3" placeholder="Item 3">
+                        <input type="text" id="blue-player5-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player5-item6" placeholder="Item 6">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="team team-red">
+                <div class="team-title">TEAM RED</div>
+                
+                <!-- Player 6 -->
+                <div class="player-form">
+                    <div class="player-title">Player 6</div>
+                    <div class="form-group">
+                        <label for="red-player6-name">Nickname</label>
+                        <input type="text" id="red-player6-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player6-hero">Hero Image URL</label>
+                        <input type="text" id="red-player6-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player6-level">Level</label>
+                        <input type="text" id="red-player6-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player6-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="red-player6-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player6-gold">Gold</label>
+                        <input type="text" id="red-player6-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player6-spell">Battle Spell</label>
+                        <input type="text" id="red-player6-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="red-player6-item1" placeholder="Item 1">
+                        <input type="text" id="red-player6-item2" placeholder="Item 2">
+                        <input type="text" id="red-player6-item3" placeholder="Item 3">
+                        <input type="text" id="red-player6-item4" placeholder="Item 4">
+                        <input type="text" id="red-player6-item5" placeholder="Item 5">
+                        <input type="text" id="red-player6-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 7 -->
+                <div class="player-form">
+                    <div class="player-title">Player 7</div>
+                    <div class="form-group">
+                        <label for="red-player7-name">Nickname</label>
+                        <input type="text" id="red-player7-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player7-hero">Hero Image URL</label>
+                        <input type="text" id="red-player7-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player7-level">Level</label>
+                        <input type="text" id="red-player7-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player7-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="red-player7-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player7-gold">Gold</label>
+                        <input type="text" id="red-player7-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player7-spell">Battle Spell</label>
+                        <input type="text" id="red-player7-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="red-player7-item1" placeholder="Item 1">
+                        <input type="text" id="red-player7-item2" placeholder="Item 2">
+                        <input type="text" id="red-player7-item3" placeholder="Item 3">
+                        <input type="text" id="red-player7-item4" placeholder="Item 4">
+                        <input type="text" id="red-player7-item5" placeholder="Item 5">
+                        <input type="text" id="red-player7-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 8 -->
+                <div class="player-form">
+                    <div class="player-title">Player 8</div>
+                    <div class="form-group">
+                        <label for="red-player8-name">Nickname</label>
+                        <input type="text" id="red-player8-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player8-hero">Hero Image URL</label>
+                        <input type="text" id="red-player8-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player8-level">Level</label>
+                        <input type="text" id="red-player8-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player8-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="red-player8-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player8-gold">Gold</label>
+                        <input type="text" id="red-player8-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player8-spell">Battle Spell</label>
+                        <input type="text" id="red-player8-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="red-player8-item1" placeholder="Item 1">
+                        <input type="text" id="red-player8-item2" placeholder="Item 2">
+                        <input type="text" id="red-player8-item3" placeholder="Item 3">
+                        <input type="text" id="red-player8-item4" placeholder="Item 4">
+                        <input type="text" id="red-player8-item5" placeholder="Item 5">
+                        <input type="text" id="red-player8-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 9 -->
+                <div class="player-form">
+                    <div class="player-title">Player 9</div>
+                    <div class="form-group">
+                        <label for="red-player9-name">Nickname</label>
+                        <input type="text" id="red-player9-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player9-hero">Hero Image URL</label>
+                        <input type="text" id="red-player9-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player9-level">Level</label>
+                        <input type="text" id="red-player9-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player9-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="red-player9-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player9-gold">Gold</label>
+                        <input type="text" id="red-player9-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player9-spell">Battle Spell</label>
+                        <input type="text" id="red-player9-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="red-player9-item1" placeholder="Item 1">
+                        <input type="text" id="red-player9-item2" placeholder="Item 2">
+                        <input type="text" id="red-player9-item3" placeholder="Item 3">
+                        <input type="text" id="red-player9-item4" placeholder="Item 4">
+                        <input type="text" id="red-player9-item5" placeholder="Item 5">
+                        <input type="text" id="red-player9-item6" placeholder="Item 6">
+                    </div>
+                </div>
+                
+                <!-- Player 10 -->
+                <div class="player-form">
+                    <div class="player-title">Player 10</div>
+                    <div class="form-group">
+                        <label for="red-player10-name">Nickname</label>
+                        <input type="text" id="red-player10-name" placeholder="Nickname">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player10-hero">Hero Image URL</label>
+                        <input type="text" id="red-player10-hero" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player10-level">Level</label>
+                        <input type="text" id="red-player10-level" placeholder="Level">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player10-kda">KDA (Format: K/D/A)</label>
+                        <input type="text" id="red-player10-kda" placeholder="Contoh: 5/2/10">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player10-gold">Gold</label>
+                        <input type="text" id="red-player10-gold" placeholder="Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-player10-spell">Battle Spell</label>
+                        <input type="text" id="red-player10-spell" placeholder="Spell name">
+                    </div>
+                    <div class="form-group">
+                        <label>Items</label>
+                        <input type="text" id="red-player10-item1" placeholder="Item 1">
+                        <input type="text" id="red-player10-item2" placeholder="Item 2">
+                        <input type="text" id="red-player10-item3" placeholder="Item 3">
+                        <input type="text" id="red-player10-item4" placeholder="Item 4">
+                        <input type="text" id="red-player10-item5" placeholder="Item 5">
+                        <input type="text" id="red-player10-item6" placeholder="Item 6">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h2>Team Stats</h2>
+            
+            <div class="stats-row">
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="blue-team-name">Blue Team Name</label>
+                        <input type="text" id="blue-team-name" placeholder="Blue Team Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-team-logo">Blue Team Logo URL</label>
+                        <input type="text" id="blue-team-logo" placeholder="Logo URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-team-score">Blue Team Score</label>
+                        <input type="text" id="blue-team-score" placeholder="Score">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-team-result">Blue Team Result</label>
+                        <input type="text" id="blue-team-result" placeholder="WIN/LOSE">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="blue-turtle">Blue Turtle</label>
+                        <input type="text" id="blue-turtle" placeholder="Turtle count">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-lord">Blue Lord</label>
+                        <input type="text" id="blue-lord" placeholder="Lord count">
+                    </div>
+                    <div class="form-group">
+                        <label for="blue-gold">Blue Total Gold</label>
+                        <input type="text" id="blue-gold" placeholder="Total gold">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="red-turtle">Red Turtle</label>
+                        <input type="text" id="red-turtle" placeholder="Turtle count">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-lord">Red Lord</label>
+                        <input type="text" id="red-lord" placeholder="Lord count">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-gold">Red Total Gold</label>
+                        <input type="text" id="red-gold" placeholder="Total gold">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="red-team-name">Red Team Name</label>
+                        <input type="text" id="red-team-name" placeholder="Red Team Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-team-logo">Red Team Logo URL</label>
+                        <input type="text" id="red-team-logo" placeholder="Logo URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-team-score">Red Team Score</label>
+                        <input type="text" id="red-team-score" placeholder="Score">
+                    </div>
+                    <div class="form-group">
+                        <label for="red-team-result">Red Team Result</label>
+                        <input type="text" id="red-team-result" placeholder="WIN/LOSE">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h2>Banned Heroes</h2>
+            
+            <div class="stats-row">
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="ban1">Ban 1</label>
+                        <input type="text" id="ban1" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban2">Ban 2</label>
+                        <input type="text" id="ban2" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban3">Ban 3</label>
+                        <input type="text" id="ban3" placeholder="Hero image URL">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="ban4">Ban 4</label>
+                        <input type="text" id="ban4" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban5">Ban 5</label>
+                        <input type="text" id="ban5" placeholder="Hero image URL">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="ban6">Ban 6</label>
+                        <input type="text" id="ban6" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban7">Ban 7</label>
+                        <input type="text" id="ban7" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban8">Ban 8</label>
+                        <input type="text" id="ban8" placeholder="Hero image URL">
+                    </div>
+                </div>
+                
+                <div class="stats-col">
+                    <div class="form-group">
+                        <label for="ban9">Ban 9</label>
+                        <input type="text" id="ban9" placeholder="Hero image URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="ban10">Ban 10</label>
+                        <input type="text" id="ban10" placeholder="Hero image URL">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="save-btn">Save Data</button>
+            <button id="reset-btn" class="reset">Reset Form</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load existing data if available
+            loadExistingData();
+            
+            // Save button event
+            document.getElementById('save-btn').addEventListener('click', saveData);
+            
+            // Reset button event
+            document.getElementById('reset-btn').addEventListener('click', resetForm);
+        });
+        
+        function loadExistingData() {
+            fetch('database/postgame.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data loaded successfully:', data);
+                    
+                    // Fill player data for Blue Team (Players 1-5)
+                    for (let i = 1; i <= 5; i++) {
+                        const playerIndex = i - 1;
+                        const player = data[playerIndex];
+                        
+                        // Set player values if elements exist
+                        setValueIfExists(`blue-player${i}-name`, localStorage.getItem(`name-box-${i+2}`) || '');
+                        setValueIfExists(`blue-player${i}-hero`, localStorage.getItem(`selectedHero${i}`) || '');
+                        
+                        if (player) {
+                            setValueIfExists(`blue-player${i}-level`, player.LVL);
+                            setValueIfExists(`blue-player${i}-kda`, player.KDA);
+                            setValueIfExists(`blue-player${i}-gold`, player.GOLD);
+                            setValueIfExists(`blue-player${i}-spell`, player.SPELL);
+                            
+                            // Set items
+                            for (let j = 1; j <= 6; j++) {
+                                setValueIfExists(`blue-player${i}-item${j}`, player[`ITEM ${j}`]);
+                            }
+                        }
+                    }
+                    
+                    // Fill player data for Red Team (Players 6-10)
+                    for (let i = 6; i <= 10; i++) {
+                        const playerIndex = i - 1;
+                        const player = data[playerIndex];
+                        
+                        // Set player values if elements exist
+                        setValueIfExists(`red-player${i}-name`, localStorage.getItem(`name-box-${i+4}`) || '');
+                        setValueIfExists(`red-player${i}-hero`, localStorage.getItem(`selectedHero${i}`) || '');
+                        
+                        if (player) {
+                            setValueIfExists(`red-player${i}-level`, player.LVL);
+                            setValueIfExists(`red-player${i}-kda`, player.KDA);
+                            setValueIfExists(`red-player${i}-gold`, player.GOLD);
+                            setValueIfExists(`red-player${i}-spell`, player.SPELL);
+                            
+                            // Set items
+                            for (let j = 1; j <= 6; j++) {
+                                setValueIfExists(`red-player${i}-item${j}`, player[`ITEM ${j}`]);
+                            }
+                        }
+                    }
+                    
+                    // Fill game info
+                    if (data[20]) {
+                        setValueIfExists('game-number', data[20].GOLD);
+                        setValueIfExists('game-duration', data[20].KDA);
+                    }
+                    
+                    // Fill team info
+                    setValueIfExists('blue-team-name', localStorage.getItem('name-box-1') || '');
+                    setValueIfExists('blue-team-logo', localStorage.getItem('logo1') || '');
+                    setValueIfExists('red-team-name', localStorage.getItem('name-box-8') || '');
+                    setValueIfExists('red-team-logo', localStorage.getItem('logo2') || '');
+                    
+                    // Fill team stats
+                    if (data[12]) {
+                        setValueIfExists('blue-team-score', data[12].GOLD);
+                        setValueIfExists('blue-team-result', data[12].KDA);
+                        setValueIfExists('blue-gold', data[12].KDA);
+                    }
+                    
+                    if (data[13]) setValueIfExists('blue-turtle', data[13].KDA);
+                    if (data[14]) setValueIfExists('blue-lord', data[14].KDA);
+                    
+                    if (data[16]) {
+                        setValueIfExists('red-team-score', data[16].GOLD);
+                        setValueIfExists('red-team-result', data[16].KDA);
+                        setValueIfExists('red-gold', data[16].KDA);
+                    }
+                    
+                    if (data[17]) setValueIfExists('red-turtle', data[17].KDA);
+                    if (data[18]) setValueIfExists('red-lord', data[18].KDA);
+                    
+                    // Fill banned heroes
+                    for (let i = 1; i <= 10; i++) {
+                        setValueIfExists(`ban${i}`, localStorage.getItem(`selectedHero${i+10}`) || '');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading existing data:', error);
+                    alert('Error loading existing data. Please check console for details.');
+                });
+        }
+        
+        function setValueIfExists(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element && value !== undefined && value !== null) {
+                element.value = value;
+            }
+        }
+        
+        function saveData() {
+            // Create data array following the structure of postgame.json
+            const data = [];
+            
+            // Blue team players (0-4)
+            for (let i = 1; i <= 5; i++) {
+                const player = {
+                    "LVL": getValueOrEmpty(`blue-player${i}-level`),
+                    "KDA": getValueOrEmpty(`blue-player${i}-kda`),
+                    "GOLD": getValueOrEmpty(`blue-player${i}-gold`),
+                    "SPELL": getValueOrEmpty(`blue-player${i}-spell`)
+                };
+                
+                // Add items
+                for (let j = 1; j <= 6; j++) {
+                    player[`ITEM ${j}`] = getValueOrEmpty(`blue-player${i}-item${j}`);
+                }
+                
+                data.push(player);
+                
+                // Save hero image and nickname to localStorage
+                const heroImg = document.getElementById(`blue-player${i}-hero`);
+                const nickname = document.getElementById(`blue-player${i}-name`);
+                
+                if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
+                if (nickname && nickname.value) localStorage.setItem(`name-box-${i+2}`, nickname.value);
+            }
+            
+            // Empty player (index 5)
+            data.push(createEmptyPlayer());
+            
+            // Red team players (6-10)
+            for (let i = 6; i <= 10; i++) {
+                const player = {
+                    "LVL": getValueOrEmpty(`red-player${i}-level`),
+                    "KDA": getValueOrEmpty(`red-player${i}-kda`),
+                    "GOLD": getValueOrEmpty(`red-player${i}-gold`),
+                    "SPELL": getValueOrEmpty(`red-player${i}-spell`)
+                };
+                
+                // Add items
+                for (let j = 1; j <= 6; j++) {
+                    player[`ITEM ${j}`] = getValueOrEmpty(`red-player${i}-item${j}`);
+                }
+                
+                data.push(player);
+                
+                // Save hero image and nickname to localStorage
+                const heroImg = document.getElementById(`red-player${i}-hero`);
+                const nickname = document.getElementById(`red-player${i}-name`);
+                
+                if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
+                if (nickname && nickname.value) localStorage.setItem(`name-box-${i+4}`, nickname.value);
+            }
+            
+            // Empty player (index 11)
+            data.push(createEmptyPlayer());
+            
+            // Blue team stats (12-14)
+            data.push({
+                "LVL": "Blue Total gold",
+                "KDA": getValueOrEmpty('blue-gold'),
+                "GOLD": getValueOrEmpty('blue-team-result'),
+                "SPELL": "PURPLE MEAN DON'T EDIT",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            data.push({
+                "LVL": "Blue Turlte",
+                "KDA": getValueOrEmpty('blue-turtle'),
+                "GOLD": "",
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            data.push({
+                "LVL": "Blue Lord",
+                "KDA": getValueOrEmpty('blue-lord'),
+                "GOLD": "",
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            // Empty (15)
+            data.push(createEmptyPlayer());
+            
+            // Red team stats (16-18)
+            data.push({
+                "LVL": "Red Total gold",
+                "KDA": getValueOrEmpty('red-gold'),
+                "GOLD": getValueOrEmpty('red-team-result'),
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            data.push({
+                "LVL": "Red Turlte",
+                "KDA": getValueOrEmpty('red-turtle'),
+                "GOLD": "",
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            data.push({
+                "LVL": "Red Lord",
+                "KDA": getValueOrEmpty('red-lord'),
+                "GOLD": "",
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            // Empty (19)
+            data.push(createEmptyPlayer());
+            
+            // Game info (20)
+            data.push({
+                "LVL": "Game Duration",
+                "KDA": getValueOrEmpty('game-duration'),
+                "GOLD": getValueOrEmpty('game-number'),
+                "SPELL": "",
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            });
+            
+            // Save team names and logos to localStorage
+            const blueTeamName = document.getElementById('blue-team-name');
+            const blueTeamLogo = document.getElementById('blue-team-logo');
+            const redTeamName = document.getElementById('red-team-name');
+            const redTeamLogo = document.getElementById('red-team-logo');
+            
+            if (blueTeamName && blueTeamName.value) localStorage.setItem('name-box-1', blueTeamName.value);
+            if (blueTeamLogo && blueTeamLogo.value) localStorage.setItem('logo1', blueTeamLogo.value);
+            if (redTeamName && redTeamName.value) localStorage.setItem('name-box-8', redTeamName.value);
+            if (redTeamLogo && redTeamLogo.value) localStorage.setItem('logo2', redTeamLogo.value);
+            
+            // Save scores
+            const blueScore = document.getElementById('blue-team-score');
+            const redScore = document.getElementById('red-team-score');
+            
+            if (blueScore && blueScore.value) localStorage.setItem('name-box-2', blueScore.value);
+            if (redScore && redScore.value) localStorage.setItem('name-box-9', redScore.value);
+            
+            // Save banned heroes (11-20)
+            for (let i = 1; i <= 10; i++) {
+                const banElement = document.getElementById(`ban${i}`);
+                if (banElement && banElement.value) localStorage.setItem(`selectedHero${i+10}`, banElement.value);
+            }
+            
+            // Save to postgame.json
+            fetch('save_postgame.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error('Failed to save data');
+            })
+            .then(responseText => {
+                console.log('Save response:', responseText);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving data: ' + error.message);
+            });
+        }
+        
+        function getValueOrEmpty(elementId) {
+            const element = document.getElementById(elementId);
+            return element ? element.value : "";
+        }
+        
+        function createEmptyPlayer() {
+            return {
+                "LVL": "", "KDA": "", "GOLD": "", "SPELL": "", 
+                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
+                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
+            };
+        }
+        
+        function resetForm() {
+            if (confirm('Are you sure you want to reset all fields?')) {
+                // Reset all input fields
+                const inputs = document.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+            }
+        }
+    </script>
+</body>
+</html>
