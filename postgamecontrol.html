@@ -116,6 +116,24 @@
         .game-info {
             margin-bottom: 20px;
         }
+
+        .import-btn {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 10px;
+    }
+
+        .import-btn:hover {
+            background-color: #2980b9;
+        }
+        .import-btn input[type="file"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -322,6 +340,7 @@
                         <input type="text" id="blue-player5-item2" placeholder="Item 2">
                         <input type="text" id="blue-player5-item3" placeholder="Item 3">
                         <input type="text" id="blue-player5-item4" placeholder="Item 4">
+                        <input type="text" id="blue-player5-item5" placeholder="Item 5">
                         <input type="text" id="blue-player5-item6" placeholder="Item 6">
                     </div>
                 </div>
@@ -657,322 +676,419 @@
         <div class="button-group">
             <button id="save-btn">Save Data</button>
             <button id="reset-btn" class="reset">Reset Form</button>
+            <button id="export-btn">Export to JSON</button>
+            <br>
+            <label for="import-btn" class="import-btn">Import JSON
+                <input type="file" id="import-btn" accept=".json" style="display: none;">
+            </label>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load existing data if available
-            loadExistingData();
-            
-            // Save button event
-            document.getElementById('save-btn').addEventListener('click', saveData);
-            
-            // Reset button event
-            document.getElementById('reset-btn').addEventListener('click', resetForm);
+document.addEventListener('DOMContentLoaded', function() {
+    // Load existing data if available
+    loadExistingData();
+    
+    // Save button event
+    document.getElementById('save-btn').addEventListener('click', saveData);
+    
+    // Reset button event
+    document.getElementById('reset-btn').addEventListener('click', resetForm);
+    
+    // Export button event
+    document.getElementById('export-btn').addEventListener('click', exportData);
+    
+    // Import button event
+    document.getElementById('import-btn').addEventListener('change', importData);
+    
+    // Auto-save when inputs change
+    setupAutoSave();
+});
+
+function setupAutoSave() {
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            saveToLocalStorage();
+            console.log('Auto-saved to localStorage');
+        });
+    });
+}
+
+function loadExistingData() {
+    // Try to load from localStorage first
+    const savedData = localStorage.getItem('postgameData');
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            populateForm(data);
+            console.log('Data loaded from localStorage');
+            return;
+        } catch (e) {
+            console.error('Error parsing localStorage data:', e);
+        }
+    }
+    
+    // If no localStorage data, try to load from postgame.json
+    fetch('database/postgame.json')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            populateForm(data);
+            console.log('Data loaded from postgame.json');
+            // Save to localStorage for future use
+            localStorage.setItem('postgameData', JSON.stringify(data));
+        })
+        .catch(error => {
+            console.error('Error loading existing data:', error);
+            alert('Error loading existing data. Starting with empty form.');
+        });
+}
+
+function populateForm(data) {
+    if (!data || !Array.isArray(data)) return;
+    
+    // Fill player data for Blue Team (Players 1-5)
+    for (let i = 1; i <= 5; i++) {
+        const playerIndex = i - 1;
+        const player = data[playerIndex] || {};
+        
+        setValueIfExists(`blue-player${i}-name`, player.NICKNAME || localStorage.getItem(`name-box-${i+2}`) || '');
+        setValueIfExists(`blue-player${i}-hero`, player.HERO_IMG || localStorage.getItem(`selectedHero${i}`) || '');
+        setValueIfExists(`blue-player${i}-level`, player.LVL || '');
+        setValueIfExists(`blue-player${i}-kda`, player.KDA || '');
+        setValueIfExists(`blue-player${i}-gold`, player.GOLD || '');
+        setValueIfExists(`blue-player${i}-spell`, player.SPELL || '');
+        
+        // Set items
+        for (let j = 1; j <= 6; j++) {
+            setValueIfExists(`blue-player${i}-item${j}`, player[`ITEM_${j}`] || '');
+        }
+    }
+    
+    // Fill player data for Red Team (Players 6-10)
+    for (let i = 6; i <= 10; i++) {
+        const playerIndex = i - 1;
+        const player = data[playerIndex] || {};
+        
+        setValueIfExists(`red-player${i}-name`, player.NICKNAME || localStorage.getItem(`name-box-${i+4}`) || '');
+        setValueIfExists(`red-player${i}-hero`, player.HERO_IMG || localStorage.getItem(`selectedHero${i}`) || '');
+        setValueIfExists(`red-player${i}-level`, player.LVL || '');
+        setValueIfExists(`red-player${i}-kda`, player.KDA || '');
+        setValueIfExists(`red-player${i}-gold`, player.GOLD || '');
+        setValueIfExists(`red-player${i}-spell`, player.SPELL || '');
+        
+        // Set items
+        for (let j = 1; j <= 6; j++) {
+            setValueIfExists(`red-player${i}-item${j}`, player[`ITEM_${j}`] || '');
+        }
+    }
+    
+    // Fill game info
+    if (data[20]) {
+        setValueIfExists('game-number', data[20].GAME_NUM || data[20].GOLD || '');
+        setValueIfExists('game-duration', data[20].DURATION || data[20].KDA || '');
+    }
+    
+    // Fill team info
+    setValueIfExists('blue-team-name', data[12]?.TEAM_NAME || localStorage.getItem('name-box-1') || '');
+    setValueIfExists('blue-team-logo', data[12]?.TEAM_LOGO || localStorage.getItem('logo1') || '');
+    setValueIfExists('red-team-name', data[16]?.TEAM_NAME || localStorage.getItem('name-box-8') || '');
+    setValueIfExists('red-team-logo', data[16]?.TEAM_LOGO || localStorage.getItem('logo2') || '');
+    
+    // Fill team stats
+    if (data[12]) {
+        setValueIfExists('blue-team-score', data[12].SCORE || data[12].GOLD || '');
+        setValueIfExists('blue-team-result', data[12].RESULT || data[12].KDA || '');
+        setValueIfExists('blue-gold', data[12].TOTAL_GOLD || data[12].KDA || '');
+    }
+    
+    if (data[13]) setValueIfExists('blue-turtle', data[13].TURTLE || data[13].KDA || '');
+    if (data[14]) setValueIfExists('blue-lord', data[14].LORD || data[14].KDA || '');
+    
+    if (data[16]) {
+        setValueIfExists('red-team-score', data[16].SCORE || data[16].GOLD || '');
+        setValueIfExists('red-team-result', data[16].RESULT || data[16].KDA || '');
+        setValueIfExists('red-gold', data[16].TOTAL_GOLD || data[16].KDA || '');
+    }
+    
+    if (data[17]) setValueIfExists('red-turtle', data[17].TURTLE || data[17].KDA || '');
+    if (data[18]) setValueIfExists('red-lord', data[18].LORD || data[18].KDA || '');
+    
+    // Fill banned heroes
+    for (let i = 1; i <= 10; i++) {
+        const banKey = `BAN_${i}`;
+        const banData = data.find(item => item[banKey]);
+        setValueIfExists(`ban${i}`, banData?.[banKey] || localStorage.getItem(`selectedHero${i+10}`) || '');
+    }
+}
+
+function setValueIfExists(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element && value !== undefined && value !== null) {
+        element.value = value;
+    }
+}
+
+function saveData() {
+    const data = prepareData();
+    
+    // 1. Simpan ke localStorage
+    localStorage.setItem('postgameData', JSON.stringify(data));
+    
+    // 2. Update UI untuk konfirmasi
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.textContent = 'Saved!';
+    saveBtn.style.backgroundColor = '#2ecc71';
+    
+    setTimeout(() => {
+        saveBtn.textContent = 'Save Data';
+        saveBtn.style.backgroundColor = '';
+    }, 2000);
+    
+    console.log('Data saved to localStorage:', data);
+}
+
+// Auto-load saat halaman dibuka
+window.addEventListener('load', () => {
+    const savedData = localStorage.getItem('postgameData');
+    if (savedData) {
+        populateForm(JSON.parse(savedData));
+    }
+});
+
+function saveToLocalStorage(data = null) {
+    if (!data) {
+        data = prepareData();
+    }
+    localStorage.setItem('postgameData', JSON.stringify(data));
+    
+    // Save individual fields to localStorage for compatibility
+    // Blue team players (1-5)
+    for (let i = 1; i <= 5; i++) {
+        const heroImg = document.getElementById(`blue-player${i}-hero`);
+        const nickname = document.getElementById(`blue-player${i}-name`);
+        
+        if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
+        if (nickname && nickname.value) localStorage.setItem(`name-box-${i+2}`, nickname.value);
+    }
+    
+    // Red team players (6-10)
+    for (let i = 6; i <= 10; i++) {
+        const heroImg = document.getElementById(`red-player${i}-hero`);
+        const nickname = document.getElementById(`red-player${i}-name`);
+        
+        if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
+        if (nickname && nickname.value) localStorage.setItem(`name-box-${i+4}`, nickname.value);
+    }
+    
+    // Team info
+    const blueTeamName = document.getElementById('blue-team-name');
+    const blueTeamLogo = document.getElementById('blue-team-logo');
+    const redTeamName = document.getElementById('red-team-name');
+    const redTeamLogo = document.getElementById('red-team-logo');
+    
+    if (blueTeamName && blueTeamName.value) localStorage.setItem('name-box-1', blueTeamName.value);
+    if (blueTeamLogo && blueTeamLogo.value) localStorage.setItem('logo1', blueTeamLogo.value);
+    if (redTeamName && redTeamName.value) localStorage.setItem('name-box-8', redTeamName.value);
+    if (redTeamLogo && redTeamLogo.value) localStorage.setItem('logo2', redTeamLogo.value);
+    
+    // Scores
+    const blueScore = document.getElementById('blue-team-score');
+    const redScore = document.getElementById('red-team-score');
+    
+    if (blueScore && blueScore.value) localStorage.setItem('name-box-2', blueScore.value);
+    if (redScore && redScore.value) localStorage.setItem('name-box-9', redScore.value);
+    
+    // Banned heroes
+    for (let i = 1; i <= 10; i++) {
+        const banElement = document.getElementById(`ban${i}`);
+        if (banElement && banElement.value) localStorage.setItem(`selectedHero${i+10}`, banElement.value);
+    }
+}
+
+function prepareData() {
+    const data = [];
+    
+    // Blue team players (0-4)
+    for (let i = 1; i <= 5; i++) {
+        const player = {
+            "NICKNAME": getValueOrEmpty(`blue-player${i}-name`),
+            "HERO_IMG": getValueOrEmpty(`blue-player${i}-hero`),
+            "LVL": getValueOrEmpty(`blue-player${i}-level`),
+            "KDA": getValueOrEmpty(`blue-player${i}-kda`),
+            "GOLD": getValueOrEmpty(`blue-player${i}-gold`),
+            "SPELL": getValueOrEmpty(`blue-player${i}-spell`)
+        };
+        
+        // Add items
+        for (let j = 1; j <= 6; j++) {
+            player[`ITEM_${j}`] = getValueOrEmpty(`blue-player${i}-item${j}`);
+        }
+        
+        data.push(player);
+    }
+    
+    // Empty player (index 5)
+    data.push(createEmptyPlayer());
+    
+    // Red team players (6-10)
+    for (let i = 6; i <= 10; i++) {
+        const player = {
+            "NICKNAME": getValueOrEmpty(`red-player${i}-name`),
+            "HERO_IMG": getValueOrEmpty(`red-player${i}-hero`),
+            "LVL": getValueOrEmpty(`red-player${i}-level`),
+            "KDA": getValueOrEmpty(`red-player${i}-kda`),
+            "GOLD": getValueOrEmpty(`red-player${i}-gold`),
+            "SPELL": getValueOrEmpty(`red-player${i}-spell`)
+        };
+        
+        // Add items
+        for (let j = 1; j <= 6; j++) {
+            player[`ITEM_${j}`] = getValueOrEmpty(`red-player${i}-item${j}`);
+        }
+        
+        data.push(player);
+    }
+    
+    // Empty player (index 11)
+    data.push(createEmptyPlayer());
+    
+    // Blue team stats (12-14)
+    data.push({
+        "TEAM_NAME": getValueOrEmpty('blue-team-name'),
+        "TEAM_LOGO": getValueOrEmpty('blue-team-logo'),
+        "SCORE": getValueOrEmpty('blue-team-score'),
+        "RESULT": getValueOrEmpty('blue-team-result'),
+        "TOTAL_GOLD": getValueOrEmpty('blue-gold'),
+        "SPELL": "PURPLE MEAN DON'T EDIT"
+    });
+    
+    data.push({
+        "TURTLE": getValueOrEmpty('blue-turtle'),
+        "TYPE": "BLUE_TURTLE"
+    });
+    
+    data.push({
+        "LORD": getValueOrEmpty('blue-lord'),
+        "TYPE": "BLUE_LORD"
+    });
+    
+    // Empty (15)
+    data.push(createEmptyPlayer());
+    
+    // Red team stats (16-18)
+    data.push({
+        "TEAM_NAME": getValueOrEmpty('red-team-name'),
+        "TEAM_LOGO": getValueOrEmpty('red-team-logo'),
+        "SCORE": getValueOrEmpty('red-team-score'),
+        "RESULT": getValueOrEmpty('red-team-result'),
+        "TOTAL_GOLD": getValueOrEmpty('red-gold')
+    });
+    
+    data.push({
+        "TURTLE": getValueOrEmpty('red-turtle'),
+        "TYPE": "RED_TURTLE"
+    });
+    
+    data.push({
+        "LORD": getValueOrEmpty('red-lord'),
+        "TYPE": "RED_LORD"
+    });
+    
+    // Empty (19)
+    data.push(createEmptyPlayer());
+    
+    // Game info (20)
+    data.push({
+        "GAME_NUM": getValueOrEmpty('game-number'),
+        "DURATION": getValueOrEmpty('game-duration'),
+        "TYPE": "GAME_INFO"
+    });
+    
+    // Banned heroes (as separate entries)
+    for (let i = 1; i <= 10; i++) {
+        const banEntry = {};
+        banEntry[`BAN_${i}`] = getValueOrEmpty(`ban${i}`);
+        banEntry["TYPE"] = `BAN_${i}`;
+        data.push(banEntry);
+    }
+    
+    return data;
+}
+
+function getValueOrEmpty(elementId) {
+    const element = document.getElementById(elementId);
+    return element ? element.value : "";
+}
+
+function createEmptyPlayer() {
+    return {
+        "TYPE": "EMPTY"
+    };
+}
+
+function exportToJsonFile(data) {
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'postgame.json';
+    
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 100);
+}
+
+function exportData() {
+    const data = prepareData();
+    exportToJsonFile(data);
+    alert('Data exported to postgame.json');
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            populateForm(data);
+            saveToLocalStorage(data);
+            alert('Data imported successfully!');
+        } catch (error) {
+            console.error('Error importing data:', error);
+            alert('Error importing data. Please check the file format.');
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset input to allow re-importing the same file
+    event.target.value = '';
+}
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset all fields?')) {
+        // Reset all input fields
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
         });
         
-        function loadExistingData() {
-            fetch('database/postgame.json')
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Data loaded successfully:', data);
-                    
-                    // Fill player data for Blue Team (Players 1-5)
-                    for (let i = 1; i <= 5; i++) {
-                        const playerIndex = i - 1;
-                        const player = data[playerIndex];
-                        
-                        // Set player values if elements exist
-                        setValueIfExists(`blue-player${i}-name`, localStorage.getItem(`name-box-${i+2}`) || '');
-                        setValueIfExists(`blue-player${i}-hero`, localStorage.getItem(`selectedHero${i}`) || '');
-                        
-                        if (player) {
-                            setValueIfExists(`blue-player${i}-level`, player.LVL);
-                            setValueIfExists(`blue-player${i}-kda`, player.KDA);
-                            setValueIfExists(`blue-player${i}-gold`, player.GOLD);
-                            setValueIfExists(`blue-player${i}-spell`, player.SPELL);
-                            
-                            // Set items
-                            for (let j = 1; j <= 6; j++) {
-                                setValueIfExists(`blue-player${i}-item${j}`, player[`ITEM ${j}`]);
-                            }
-                        }
-                    }
-                    
-                    // Fill player data for Red Team (Players 6-10)
-                    for (let i = 6; i <= 10; i++) {
-                        const playerIndex = i - 1;
-                        const player = data[playerIndex];
-                        
-                        // Set player values if elements exist
-                        setValueIfExists(`red-player${i}-name`, localStorage.getItem(`name-box-${i+4}`) || '');
-                        setValueIfExists(`red-player${i}-hero`, localStorage.getItem(`selectedHero${i}`) || '');
-                        
-                        if (player) {
-                            setValueIfExists(`red-player${i}-level`, player.LVL);
-                            setValueIfExists(`red-player${i}-kda`, player.KDA);
-                            setValueIfExists(`red-player${i}-gold`, player.GOLD);
-                            setValueIfExists(`red-player${i}-spell`, player.SPELL);
-                            
-                            // Set items
-                            for (let j = 1; j <= 6; j++) {
-                                setValueIfExists(`red-player${i}-item${j}`, player[`ITEM ${j}`]);
-                            }
-                        }
-                    }
-                    
-                    // Fill game info
-                    if (data[20]) {
-                        setValueIfExists('game-number', data[20].GOLD);
-                        setValueIfExists('game-duration', data[20].KDA);
-                    }
-                    
-                    // Fill team info
-                    setValueIfExists('blue-team-name', localStorage.getItem('name-box-1') || '');
-                    setValueIfExists('blue-team-logo', localStorage.getItem('logo1') || '');
-                    setValueIfExists('red-team-name', localStorage.getItem('name-box-8') || '');
-                    setValueIfExists('red-team-logo', localStorage.getItem('logo2') || '');
-                    
-                    // Fill team stats
-                    if (data[12]) {
-                        setValueIfExists('blue-team-score', data[12].GOLD);
-                        setValueIfExists('blue-team-result', data[12].KDA);
-                        setValueIfExists('blue-gold', data[12].KDA);
-                    }
-                    
-                    if (data[13]) setValueIfExists('blue-turtle', data[13].KDA);
-                    if (data[14]) setValueIfExists('blue-lord', data[14].KDA);
-                    
-                    if (data[16]) {
-                        setValueIfExists('red-team-score', data[16].GOLD);
-                        setValueIfExists('red-team-result', data[16].KDA);
-                        setValueIfExists('red-gold', data[16].KDA);
-                    }
-                    
-                    if (data[17]) setValueIfExists('red-turtle', data[17].KDA);
-                    if (data[18]) setValueIfExists('red-lord', data[18].KDA);
-                    
-                    // Fill banned heroes
-                    for (let i = 1; i <= 10; i++) {
-                        setValueIfExists(`ban${i}`, localStorage.getItem(`selectedHero${i+10}`) || '');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading existing data:', error);
-                    alert('Error loading existing data. Please check console for details.');
-                });
-        }
-        
-        function setValueIfExists(elementId, value) {
-            const element = document.getElementById(elementId);
-            if (element && value !== undefined && value !== null) {
-                element.value = value;
-            }
-        }
-        
-        function saveData() {
-            // Create data array following the structure of postgame.json
-            const data = [];
-            
-            // Blue team players (0-4)
-            for (let i = 1; i <= 5; i++) {
-                const player = {
-                    "LVL": getValueOrEmpty(`blue-player${i}-level`),
-                    "KDA": getValueOrEmpty(`blue-player${i}-kda`),
-                    "GOLD": getValueOrEmpty(`blue-player${i}-gold`),
-                    "SPELL": getValueOrEmpty(`blue-player${i}-spell`)
-                };
-                
-                // Add items
-                for (let j = 1; j <= 6; j++) {
-                    player[`ITEM ${j}`] = getValueOrEmpty(`blue-player${i}-item${j}`);
-                }
-                
-                data.push(player);
-                
-                // Save hero image and nickname to localStorage
-                const heroImg = document.getElementById(`blue-player${i}-hero`);
-                const nickname = document.getElementById(`blue-player${i}-name`);
-                
-                if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
-                if (nickname && nickname.value) localStorage.setItem(`name-box-${i+2}`, nickname.value);
-            }
-            
-            // Empty player (index 5)
-            data.push(createEmptyPlayer());
-            
-            // Red team players (6-10)
-            for (let i = 6; i <= 10; i++) {
-                const player = {
-                    "LVL": getValueOrEmpty(`red-player${i}-level`),
-                    "KDA": getValueOrEmpty(`red-player${i}-kda`),
-                    "GOLD": getValueOrEmpty(`red-player${i}-gold`),
-                    "SPELL": getValueOrEmpty(`red-player${i}-spell`)
-                };
-                
-                // Add items
-                for (let j = 1; j <= 6; j++) {
-                    player[`ITEM ${j}`] = getValueOrEmpty(`red-player${i}-item${j}`);
-                }
-                
-                data.push(player);
-                
-                // Save hero image and nickname to localStorage
-                const heroImg = document.getElementById(`red-player${i}-hero`);
-                const nickname = document.getElementById(`red-player${i}-name`);
-                
-                if (heroImg && heroImg.value) localStorage.setItem(`selectedHero${i}`, heroImg.value);
-                if (nickname && nickname.value) localStorage.setItem(`name-box-${i+4}`, nickname.value);
-            }
-            
-            // Empty player (index 11)
-            data.push(createEmptyPlayer());
-            
-            // Blue team stats (12-14)
-            data.push({
-                "LVL": "Blue Total gold",
-                "KDA": getValueOrEmpty('blue-gold'),
-                "GOLD": getValueOrEmpty('blue-team-result'),
-                "SPELL": "PURPLE MEAN DON'T EDIT",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            data.push({
-                "LVL": "Blue Turlte",
-                "KDA": getValueOrEmpty('blue-turtle'),
-                "GOLD": "",
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            data.push({
-                "LVL": "Blue Lord",
-                "KDA": getValueOrEmpty('blue-lord'),
-                "GOLD": "",
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            // Empty (15)
-            data.push(createEmptyPlayer());
-            
-            // Red team stats (16-18)
-            data.push({
-                "LVL": "Red Total gold",
-                "KDA": getValueOrEmpty('red-gold'),
-                "GOLD": getValueOrEmpty('red-team-result'),
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            data.push({
-                "LVL": "Red Turlte",
-                "KDA": getValueOrEmpty('red-turtle'),
-                "GOLD": "",
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            data.push({
-                "LVL": "Red Lord",
-                "KDA": getValueOrEmpty('red-lord'),
-                "GOLD": "",
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            // Empty (19)
-            data.push(createEmptyPlayer());
-            
-            // Game info (20)
-            data.push({
-                "LVL": "Game Duration",
-                "KDA": getValueOrEmpty('game-duration'),
-                "GOLD": getValueOrEmpty('game-number'),
-                "SPELL": "",
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            });
-            
-            // Save team names and logos to localStorage
-            const blueTeamName = document.getElementById('blue-team-name');
-            const blueTeamLogo = document.getElementById('blue-team-logo');
-            const redTeamName = document.getElementById('red-team-name');
-            const redTeamLogo = document.getElementById('red-team-logo');
-            
-            if (blueTeamName && blueTeamName.value) localStorage.setItem('name-box-1', blueTeamName.value);
-            if (blueTeamLogo && blueTeamLogo.value) localStorage.setItem('logo1', blueTeamLogo.value);
-            if (redTeamName && redTeamName.value) localStorage.setItem('name-box-8', redTeamName.value);
-            if (redTeamLogo && redTeamLogo.value) localStorage.setItem('logo2', redTeamLogo.value);
-            
-            // Save scores
-            const blueScore = document.getElementById('blue-team-score');
-            const redScore = document.getElementById('red-team-score');
-            
-            if (blueScore && blueScore.value) localStorage.setItem('name-box-2', blueScore.value);
-            if (redScore && redScore.value) localStorage.setItem('name-box-9', redScore.value);
-            
-            // Save banned heroes (11-20)
-            for (let i = 1; i <= 10; i++) {
-                const banElement = document.getElementById(`ban${i}`);
-                if (banElement && banElement.value) localStorage.setItem(`selectedHero${i+10}`, banElement.value);
-            }
-            
-            // Save to postgame.json
-            fetch('save_postgame.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                }
-                throw new Error('Failed to save data');
-            })
-            .then(responseText => {
-                console.log('Save response:', responseText);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error saving data: ' + error.message);
-            });
-        }
-        
-        function getValueOrEmpty(elementId) {
-            const element = document.getElementById(elementId);
-            return element ? element.value : "";
-        }
-        
-        function createEmptyPlayer() {
-            return {
-                "LVL": "", "KDA": "", "GOLD": "", "SPELL": "", 
-                "ITEM 1": "", "ITEM 2": "", "ITEM 3": "", 
-                "ITEM 4": "", "ITEM 5": "", "ITEM 6": ""
-            };
-        }
-        
-        function resetForm() {
-            if (confirm('Are you sure you want to reset all fields?')) {
-                // Reset all input fields
-                const inputs = document.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
-            }
-        }
+        // Clear localStorage
+        localStorage.removeItem('postgameData');
+        console.log('Form and localStorage reset');
+    }
+}
     </script>
 </body>
 </html>
