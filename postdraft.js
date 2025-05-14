@@ -1,4 +1,4 @@
-function loadNames() {
+function loadNames() { 
     const names = JSON.parse(localStorage.getItem("names")) || [];
     for (let i = 1; i <= 14; i++) {
         document.getElementById(`name-box-${i}`).textContent = names[i - 1] || "";
