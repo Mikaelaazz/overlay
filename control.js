@@ -1,4 +1,4 @@
-const heroes = [
+const heroes = [ 
     { name: 'Aamon', img: '/Assets/HeroPick/aamon.png', voice: '/Assets/Voicelines/aamon.ogg' },
     { name: 'Akai', img: '/Assets/HeroPick/akai.png', voice: '/Assets/Voicelines/akai.ogg' },
     { name: 'Aldous', img: '/Assets/HeroPick/aldous.png', voice: '/Assets/Voicelines/aldous.ogg' },
