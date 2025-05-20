@@ -1,6 +1,6 @@
 <?php
 // save_postgame.php
-
+ 
 // Enable CORS (Cross-Origin Resource Sharing)
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
