@@ -3,7 +3,7 @@
     if (!name) return "";
     return `Assets/Itemandspell/${name}.png`;
   }
-
+ 
   // Fungsi untuk render pemain
   function renderPlayers(data) {
     if (!data) return;
