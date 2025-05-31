@@ -2,7 +2,7 @@ function updateDisplay() {
     for (let i = 1; i <= 20; i++) { // Sesuaikan jumlah dropdown
         let imgSrc = localStorage.getItem(`selectedHero${i}`);
         let voiceSrc = localStorage.getItem(`selectedVoice${i}`);
-        
+         
         let imgElement = document.getElementById(`image-display-${i}`);
         let boxElement = document.getElementById(`image-box-${i}`);
 
