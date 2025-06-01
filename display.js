@@ -5,7 +5,7 @@ function updateDisplay() {
          
         let imgElement = document.getElementById(`image-display-${i}`);
         let boxElement = document.getElementById(`image-box-${i}`);
-
+ 
         let cloneImgElement = document.getElementById(`clone-image-display-${i}`);
         let cloneBoxElement = document.getElementById(`-clone-image-box-${i}`);
 
